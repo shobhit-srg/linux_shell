@@ -23,6 +23,15 @@ map<string,string> ali;
 long long currentpid;
 int lastpid;
 int log1 =0;
+void  sigtstp_handler(int signum){
+  int status;
+     switch(signum){
+        case SIGCHLD:
+            waitpid(-1, &status, WNOHANG);
+             break;
+     }
+}
+
 char gpwd()
 {
   char buf[1000];
@@ -64,8 +73,8 @@ void tokenize(std::string const &str, const char delim, vector<string> &out)
 
 void  execute(char **argv)
 {
-     pid_t  pid;
-     int    status;
+     int  pid;
+     int m;
 
      if ((pid = fork()) < 0) {   
      cout<<"Error"<<endl;
@@ -78,7 +87,7 @@ void  execute(char **argv)
           }
      }
      else {                                 
-          while (wait(&status) != pid)     
+          while (wait(&m) != pid)     
                ;
      }
 }
@@ -118,16 +127,16 @@ void pipe1(char **argx,int count)
           {  
             dup2(pd[1], 1); 
             execvp(*pi[i],pi[i]);
-            perror("exec");
-            abort();
+            perror("Invalid");
+            exit(0);
           }
             dup2(pd[0], 0);
             close(pd[1]);
         }
         if(strcmp(argx[x-1], ">")!=0){
         execvp(*pi[i],pi[i]);
-        perror("exec");
-        abort();}
+        perror("Invalid");
+        exit(0);}
     }
     
     else
@@ -538,28 +547,35 @@ int main()
     if(strcmp(argv[0], "exit") == 0)
       break;
   
-  /*  if(strcmp(argv[x-1],"&") == 0)
+    if(strcmp(argv[x-1],"&") == 0)
     {
-      argv[x-1]==NULL;
-      int bpid;
-      int s111;
-      bpid=fork();
+       argv[x-1]==NULL;
+       int bpid;
+       int s111;
+       signal(SIGTSTP, sigtstp_handler);
+       bpid=fork();
         if(bpid==0)
         {
-          setpgid(getpid(),0);
+          setpgid(0,0);
           execute(argv);
-        continue;
         }
         
-    else
+       else
         {
-          while (wait(&s111) != bpid)     
-              ;
+          continue;
         }
     }
-    */
-		execute(argv);
 
+/*
+    if(strcmp(argv[0],"fg") == 0)
+    {
+      cout<<"d";
+      int pid=getpid();
+     setpgid(pid,0);
+     kill (getpid(),SIGKILL);
+    }
+		execute(argv);
+*/
 	}
 	return 0;
 }
