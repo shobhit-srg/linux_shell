@@ -19,6 +19,7 @@
 using namespace std;
 int flag;
 int x;
+char *offile;
 map<string,string> ali;
 long long currentpid;
 int lastpid;
@@ -133,10 +134,55 @@ void pipe1(char **argx,int count)
             dup2(pd[0], 0);
             close(pd[1]);
         }
-        if(strcmp(argx[x-1], ">")!=0){
+        string ior=argx[x-1];
+        if(!(ior.find(">") != std::string::npos)){
         execvp(*pi[i],pi[i]);
         perror("Invalid");
         exit(0);}
+        if(ior.find(">") != std::string::npos)
+        {
+        	
+        	char *u1[64];
+          char *u2[64];
+          int ppp;
+          int s3;
+          string delimit = ">";
+          string tok1 = ior.substr(0, ior.find(delimit));
+          tok1+=" NULL";
+       
+          string tok2 = ior.substr(ior.find(delimit)+1,ior.length());
+          //cout<<tok1;
+          char *t111 = new char[tok1.length()+1];
+          strcpy(t111,tok1.c_str());
+          parse(t111,u1);
+          char *t222 = new char[tok2.length()+1];
+          strcpy(t222,tok2.c_str());
+          parse(t222,u2);
+          if(t222[0]==' ')
+          {
+            offile=++t222;
+          }
+          else 
+          offile=t222;
+         // cout<<ofile;
+          ppp=fork();
+          if (ppp == 0)
+          {
+              if(offile!=NULL)
+            {
+                  int fd2=open(offile, O_WRONLY| O_APPEND | O_CREAT, 0644);
+                  dup2(fd2, STDOUT_FILENO);
+                  close(fd2);
+            }
+          execvp(*u1,u1);
+          }
+
+          else {                                 
+              while (wait(&s3) != ppp)     
+              ;
+              }
+            
+        }
     }
     
     else
@@ -222,7 +268,7 @@ int main()
             break;}
     } 
 
-     if (command.find(">") != std::string::npos && !(command.find(">>") != std::string::npos))
+     if (command.find(">") != std::string::npos && !(command.find(">>") != std::string::npos) && !(command.find("|") != std::string::npos))
       {
           char *argv1[64];
           char *argv2[64];
@@ -573,9 +619,8 @@ int main()
       int pid=getpid();
      setpgid(pid,0);
      kill (getpid(),SIGKILL);
-    }
+    }*/
 		execute(argv);
-*/
 	}
 	return 0;
 }
